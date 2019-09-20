@@ -12,7 +12,10 @@
             </thead>
             <tbody>
             <tr v-for="item in filteredSong">
-                <td><button type="button" class="btn btn-dark">Play</button></td>
+                <td>
+                    <button type="button" class="btn btn-success" v-on:click="play(item.path)">Play</button>
+                    <button type="button" class="btn btn-danger" v-on:click="stop()">Stop</button>
+                </td>
                 <td>{{ item.common.artist }}</td>
                 <td>{{ item.common.album }}</td>
                 <td>{{ item.common.title }}</td>
@@ -30,6 +33,8 @@
   import glob from 'glob';
   import * as mm from 'music-metadata';
   import _ from 'lodash';
+  const { createAudio } = require('node-mp3-player');
+  const Audio = createAudio();
 
   export default {
     name: 'app',
@@ -51,11 +56,16 @@
         pathToMusic: '/media/scronheim/Music/',
         fileList: [],
         humanFileList: [],
-        filter: ''
+        filter: '',
+        audio: ''
       }
     },
     methods: {
-      prepareData() {
+      async play(path) {
+        const myFile = Audio(path)
+        console.log(myFile.volume())
+      },
+      stop() {
 
       }
     },
@@ -65,6 +75,7 @@
         _.forEach(this.fileList, ((value, key) => {
           mm.parseFile(value)
             .then((metadata) => {
+              metadata.path = value
               this.humanFileList.push(metadata);
             })
         }))
