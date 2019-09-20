@@ -1,24 +1,27 @@
-'use strict'
+'use strict';
 
 import { app, BrowserWindow } from 'electron'
 import * as path from 'path'
 import { format as formatUrl } from 'url'
 
-const isDevelopment = process.env.NODE_ENV === 'development'
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 // global reference to mainWindow (necessary to prevent window from being garbage collected)
-let mainWindow
+let mainWindow;
 
 function createMainWindow() {
   const window = new BrowserWindow({
-    width: 1100,
-    height: 600,
+    width: 1500,
+    height: 770,
     title: process.env.npm_package_name,
-    webPreferences: {nodeIntegration: true}
-  })
+    webPreferences: {
+      nodeIntegration: true,
+      webSecurity: false
+    }
+  });
 
   if (isDevelopment) {
-    window.webContents.openDevTools()
+    window.webContents.openDevTools();
     window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`)
   }
   else {
@@ -31,14 +34,14 @@ function createMainWindow() {
 
   window.on('closed', () => {
     mainWindow = null
-  })
+  });
 
   window.webContents.on('devtools-opened', () => {
-    window.focus()
+    window.focus();
     setImmediate(() => {
       window.focus()
     })
-  })
+  });
 
   return window
 }
@@ -49,16 +52,16 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
-})
+});
 
 app.on('activate', () => {
   // on macOS it is common to re-create a window even after all windows have been closed
   if (mainWindow === null) {
     mainWindow = createMainWindow()
   }
-})
+});
 
 // create main BrowserWindow when electron is ready
 app.on('ready', () => {
   mainWindow = createMainWindow()
-})
+});

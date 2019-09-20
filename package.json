@@ -7,16 +7,20 @@
     "build": "electron-webpack && electron-builder"
   },
   "dependencies": {
-    "source-map-support": "^0.5.12"
+    "jquery-ui-bundle": "^1.12.1-migrate",
+    "source-map-support": "^0.5.12",
+    "webpack-jquery-ui": "^2.0.1"
   },
   "devDependencies": {
     "bootstrap": "^4.3.1",
+    "bootstrap-slider": "^10.6.2",
     "css-loader": "^3.2.0",
     "electron": "5.0.6",
     "electron-builder": "^21.0.11",
     "electron-webpack": "^2.7.4",
     "glob": "^7.1.4",
     "jquery": "^3.4.1",
+    "jquery-ui": "^1.12.1",
     "lodash": "^4.17.15",
     "music-metadata": "^4.6.0",
     "node-mp3-player": "^1.0.3",
