@@ -1,0 +1,30 @@
+{
+  "name": "music-library",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {
+    "dev": "electron-webpack dev",
+    "build": "electron-webpack && electron-builder"
+  },
+  "dependencies": {
+    "source-map-support": "^0.5.12"
+  },
+  "devDependencies": {
+    "bootstrap": "^4.3.1",
+    "css-loader": "^3.2.0",
+    "electron": "5.0.6",
+    "electron-builder": "^21.0.11",
+    "electron-webpack": "^2.7.4",
+    "glob": "^7.1.4",
+    "jquery": "^3.4.1",
+    "lodash": "^4.17.15",
+    "music-metadata": "^4.6.0",
+    "node-mp3-player": "^1.0.3",
+    "popper.js": "^1.15.0",
+    "style-loader": "^1.0.0",
+    "vue": "^2.6.10",
+    "vue-loader": "^15.7.1",
+    "vue-template-compiler": "^2.6.10",
+    "webpack": "~4.35.3"
+  }
+}
