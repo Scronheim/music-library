@@ -12,7 +12,7 @@ let mainWindow;
 function createMainWindow() {
   const window = new BrowserWindow({
     width: 1500,
-    height: 770,
+    height: 800,
     title: process.env.npm_package_name,
     webPreferences: {
       nodeIntegration: true,

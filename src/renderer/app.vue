@@ -1,7 +1,9 @@
 <template>
   <div>
-    <audio style="display: none" controls id="playerHtml" v-bind:src="'file:///'+currentPath"></audio>
-    <input type="text" class="form-control" v-model="filter">
+    <div id="player">
+      <audio style="display: none" controls id="playerHtml" v-bind:src="'file:///'+currentSong.path"></audio>
+    </div>
+    <input type="text" class="form-control" v-model="filter" placeholder="Filter">
     <table class="table table-bordered">
       <thead>
       <th>Play</th>
@@ -12,10 +14,9 @@
       <th>Year</th>
       </thead>
       <tbody>
-      <tr v-for="item in filteredSong">
+      <tr v-for="(item, index) in filteredSong">
         <td>
-          <button type="button" class="btn btn-success" v-on:click="play(item)">Play</button>
-          <button type="button" class="btn btn-danger" v-on:click="stop()">Stop</button>
+          <button type="button" class="btn btn-success" v-on:click="play(item, index)">Play</button>
         </td>
         <td>{{ item.common.artist }}</td>
         <td>{{ item.common.album }}</td>
@@ -25,7 +26,7 @@
       </tr>
       </tbody>
     </table>
-    <div id="footer" class="card" v-show="showPlayer">
+    <div id="footer" class="card" v-if="showPlayer">
       <!--      <img src="" class="card-img-top" alt="...">-->
       <div class="card-body">
         <div class="container">
@@ -35,12 +36,18 @@
               <p class="card-text">{{ currentSong.common.title }}</p>
             </div>
             <div class="col text-center">
-              <img v-if="currentPlayerState" class="" src="../static/img/pause.svg" width="70px"  v-on:click="stop()">
-              <img v-else class="" src="../static/img/play.svg" width="70px"  v-on:click="play(currentSong)">
+              <img v-if="shuffle" src="../static/img/shuffle-on.svg" style="margin-right: 20px;cursor: pointer" width="30px" v-on:click="shuffle = !shuffle">
+              <img v-else src="../static/img/shuffle-off.svg" style="margin-right: 20px;cursor: pointer" width="30px" v-on:click="shuffle = !shuffle">
+              <img src="../static/img/prev-song.svg" width="30px" style="cursor: pointer" v-on:click="prevSong()" title="Previous song">
+              <img v-if="currentPlayerState" class="" src="../static/img/pause.svg" width="70px" style="cursor: pointer" v-on:click="pause()" title="Pause">
+              <img v-else class="" src="../static/img/play.svg" width="70px" style="cursor: pointer" v-on:click="play(currentSong)" title="Play">
+              <img src="../static/img/next-song.svg" width="30px" style="cursor: pointer" v-on:click="nextSong()" title="Next song">
             </div>
             <div class="col">
-              <input id="volume" type="range" min="0" max="100" step="1" value="100" v-on:input="setVolume($event)" v-on:change="setVolume($event)"/>
-              Current volume: {{ player.volume*100 }}
+              <input id="volume" class="volume" type="range" min="0" max="100" step="1" value="50" v-on:input="setVolume($event)" v-on:change="setVolume($event)"/><br/>
+              Current volume: {{ player.volume*100 }}<br/>
+              <input id="duration" class="volume" type="range" min="0" v-bind:max="currentSong.format.duration" step="1" value="50" v-model="player.currentTime"/><br/>
+              Current time: {{ currentSongTime }}/{{ currentSongDuration }}
             </div>
           </div>
         </div>
@@ -55,6 +62,7 @@
     import glob from 'glob';
     import * as mm from 'music-metadata';
     import _ from 'lodash';
+    import moment from 'moment';
 
     export default {
         name: 'app',
@@ -73,41 +81,66 @@
         },
         data() {
             return {
-                pathToMusic: 'E:\\MuSIC\\',
+                pathToMusic: 'E:\\MuSIC\\Rammstein\\',
                 fileList: [],
                 humanFileList: [],
                 filter: '',
                 player: '',
                 volume: '',
-                currentPath: '',
-                currentSong: {
-                    common: {
-                        artist: '',
-                        album: '',
-                        title: ''
-                    }
-                },
+                currentSong: {},
                 currentPlayerState: false,
+                currentSongTime: '',
+                currentSongDuration: '',
                 showPlayer: false,
-                showHtmlPlayer: false
+                showHtmlPlayer: false,
+                shuffle: false,
             }
         },
         methods: {
-            play(song) {
+            play(song, index) {
                 this.currentSong = song;
-                this.currentPath = song.path;
+                this.currentSong.index = index;
+                this.currentSongDuration = moment.utc(this.currentSong.format.duration*1000).format('mm:ss');
+                this.currentSongTime = moment.utc(this.currentSong.format.duration*1000).format('mm:ss');
                 this.player = document.getElementById('playerHtml');
                 this.volume = document.getElementById('volume');
                 setTimeout(() => {
                     this.player.play();
-                    this.player.volume = 1;
                     this.currentPlayerState = true;
                     this.showPlayer = true;
                 }, 100);
+                setInterval(() => {
+                    this.currentSongTime = moment.utc(this.player.currentTime*1000).format('mm:ss');
+                }, 500);
             },
-            stop() {
+            pause() {
                 this.player.pause();
                 this.currentPlayerState = false;
+            },
+            nextSong() {
+                if (this.shuffle) {
+                    let random = _.random(0, this.humanFileList.length);
+                    this.currentSong = this.humanFileList[random];
+                    this.currentSong.index = random;
+                    setTimeout(() => {
+                        this.player.play();
+                    }, 100);
+                } else {
+                    let index = this.currentSong.index;
+                    this.currentSong = this.humanFileList[index + 1];
+                    this.currentSong.index = index + 1;
+                    setTimeout(() => {
+                        this.player.play();
+                    }, 100);
+                }
+            },
+            prevSong() {
+                let index = this.currentSong.index;
+                this.currentSong = this.humanFileList[index-1];
+                this.currentSong.index = index-1;
+                setTimeout(() => {
+                    this.player.play();
+                }, 100);
             },
             setVolume(event) {
                 this.player.volume = event.target.value / 100;
@@ -142,27 +175,9 @@
 <style scoped>
   @import url(https://fonts.googleapis.com/css?family=Raleway:500);
   #footer {
-    position: fixed;
+    position: sticky;
     bottom: 0;
     width: 100%;
-  }
-  body {
-    background: #2a2a2a;
-    font-family: Raleway,serif;
-  }
-
-  h1 {
-    text-align: center;
-    font-size: 34px;
-    padding-top: 40px;
-    color: #FFF;
-  }
-  #player {
-    width: 350px;
-    height: 50px;
-    position: relative;
-    margin: 0 auto;
-    top: 30px;
   }
   #player i {
     position: absolute;
@@ -177,7 +192,7 @@
     right: 0;
   }
 
-  #volume {
+  .volume {
     position: absolute;
     left: 24px;
     margin: 0 auto;
@@ -185,26 +200,6 @@
     width: 300px;
     background: #555;
     border-radius: 15px;
-  }
-  #volume .ui-slider-range-min {
-    height: 5px;
-    width: 300px;
-    position: absolute;
-    background: #2ecc71;
-    border: none;
-    border-radius: 10px;
-    outline: none;
-  }
-  #volume .ui-slider-handle {
-    width: 20px;
-    height: 20px;
-    border-radius: 20px;
-    background: #FFF;
-    position: absolute;
-    margin-left: -8px;
-    margin-top: -8px;
-    cursor: pointer;
-    outline: none;
   }
 
 </style>
