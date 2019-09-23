@@ -4,7 +4,7 @@
       <audio style="display: none" controls id="playerHtml" v-bind:src="'file:///'+currentSong.path"></audio>
     </div>
     <input type="text" class="form-control" v-model="filter" placeholder="Filter">
-    <table class="table table-bordered">
+    <table class="table table-bordered" v-if="showTable">
       <thead>
       <th>Play</th>
       <th>Group</th>
@@ -73,12 +73,12 @@
       filteredSong: function () {
         let self = this;
         return this.humanFileList.filter(
-                function (o) {
-                  return ((self.filter === '') || ((o.common.artist.toUpperCase().indexOf(self.filter.toUpperCase()) >= 0))
-                          || (o.common.title.toUpperCase().indexOf(self.filter.toUpperCase()) >= 0)
-                          || (o.common.album.toUpperCase().indexOf(self.filter.toUpperCase()) >= 0)
-                  )
-                }
+            function (o) {
+              return ((self.filter === '') || ((o.common.artist.toUpperCase().indexOf(self.filter.toUpperCase()) >= 0))
+                  || (o.common.title.toUpperCase().indexOf(self.filter.toUpperCase()) >= 0)
+                  || (o.common.album.toUpperCase().indexOf(self.filter.toUpperCase()) >= 0)
+              )
+            }
         )
       },
       getPicture() {
@@ -93,19 +93,20 @@
     },
     data() {
       return {
-        pathToMusic: '/media/scronheim/Music/',
-        fileList: [],
+        pathToMusic: 'E:\\MuSIC\\Cypecore\\',
         humanFileList: [],
         filter: '',
         player: '',
         volume: '',
-        db: '',
+        db: null,
+        dbResult: null,
         currentSong: {},
         currentPlayerState: false,
         currentSongTime: '',
         currentSongDuration: '',
         showPlayer: false,
         showHtmlPlayer: false,
+        showTable: false,
         shuffle: false,
       }
     },
@@ -166,19 +167,19 @@
         for (const audioFile of audioFiles) {
           // await will ensure the metadata parsing is completed before we move on to the next file
           await mm.parseFile(audioFile)
-                  .then((metadata) => {
-                    metadata.path = audioFile;
-                    this.humanFileList.push(metadata);
-                  });
+              .then((metadata) => {
+                metadata.path = audioFile;
+                this.db.run('INSERT INTO music(data) VALUES(?)', [metadata]);
+                this.humanFileList.push(metadata);
+              });
         }
       }
     },
     mounted () {
-      this.db = new sqlite.Database('../music.db', (error) => {
+      this.db = new sqlite.Database('src/music.db', (error) => {
         if (error) {
           console.log(error.message);
         }
-        console.log('Vse ok')
       });
       let pattern;
       if (process.platform === "win32") {
@@ -187,7 +188,6 @@
         pattern = `${this.pathToMusic}**/*.mp3`;
       }
       glob(pattern, ((error, files) => {
-        this.fileList = files;
         this.parseFiles(files);
       }));
     }

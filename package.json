@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "aws-sdk": "^2.533.0",
+    "electron-rebuild": "^1.8.6",
     "jquery-ui-bundle": "^1.12.1-migrate",
     "source-map-support": "^0.5.12",
     "sqlite3": "^4.1.0",
