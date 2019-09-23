@@ -30,11 +30,11 @@
       <div class="card-body">
         <div class="row">
           <div class="col-1">
-            <img v-bind:src="getPicture" width="100px" height="100px">
+            <img v-bind:src="getPicture" class="img-thumbnail">
           </div>
-          <div class="col">
+          <div class="col-3">
             <h5 class="card-title">{{ currentSong.common.artist }}</h5>
-            <p class="card-text">{{ currentSong.common.title }}</p>
+            <p class="card-text">{{ currentSong.common.title }} ({{ currentSong.common.album }})</p>
           </div>
           <div class="col text-center">
             <img v-if="shuffle" src="../static/img/shuffle-on.svg" style="margin-right: 20px;cursor: pointer" width="30px" v-on:click="shuffle = !shuffle">
@@ -64,6 +64,8 @@
   import _ from 'lodash';
   import moment from 'moment';
 
+  import no_cover from '../static/img/no-cover.png';
+
   export default {
     name: 'app',
     computed: {
@@ -79,9 +81,13 @@
         )
       },
       getPicture() {
-        let u8 = new Uint8Array(this.currentSong.common.picture[0].data);
-        let blob = new Blob([u8], {'type': 'image/png'});
-        return  URL.createObjectURL(blob); //possibly `webkitURL` or another vendor prefix for old browsers.
+        if (this.currentSong.common.hasOwnProperty('picture')) {
+          let u8 = new Uint8Array(this.currentSong.common.picture[0].data);
+          let blob = new Blob([u8], {'type': 'image/png'});
+          return URL.createObjectURL(blob); //possibly `webkitURL` or another vendor prefix for old browsers.
+        } else {
+          return no_cover;
+        }
       },
     },
     data() {
