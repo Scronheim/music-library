@@ -1,6 +1,6 @@
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 module.exports = {
-  devtool: 'eval',
+  devtool: 'eval-source-map',
   module: {
     rules: [
       {
