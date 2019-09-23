@@ -7,8 +7,10 @@
     "build": "electron-webpack && electron-builder"
   },
   "dependencies": {
+    "aws-sdk": "^2.533.0",
     "jquery-ui-bundle": "^1.12.1-migrate",
     "source-map-support": "^0.5.12",
+    "sqlite3": "^4.1.0",
     "webpack-jquery-ui": "^2.0.1"
   },
   "devDependencies": {

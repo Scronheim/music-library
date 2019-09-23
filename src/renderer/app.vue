@@ -63,6 +63,7 @@
   import * as mm from 'music-metadata';
   import _ from 'lodash';
   import moment from 'moment';
+  const sqlite = require('sqlite3').verbose();
 
   import no_cover from '../static/img/no-cover.png';
 
@@ -98,6 +99,7 @@
         filter: '',
         player: '',
         volume: '',
+        db: '',
         currentSong: {},
         currentPlayerState: false,
         currentSongTime: '',
@@ -172,6 +174,12 @@
       }
     },
     mounted () {
+      this.db = new sqlite.Database('../music.db', (error) => {
+        if (error) {
+          console.log(error.message);
+        }
+        console.log('Vse ok')
+      });
       let pattern;
       if (process.platform === "win32") {
         pattern = `${this.pathToMusic}\**\\*.mp3`;
