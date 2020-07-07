@@ -18,7 +18,7 @@
     "bootstrap": "^4.3.1",
     "bootstrap-slider": "^10.6.2",
     "css-loader": "^3.2.0",
-    "electron": "5.0.6",
+    "electron": "7.2.4",
     "electron-builder": "^21.0.11",
     "electron-webpack": "^2.7.4",
     "glob": "^7.1.4",
