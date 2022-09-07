@@ -32,7 +32,7 @@ async function createWindow() {
   win = new BrowserWindow({
     title: 'Main window',
     icon: join(ROOT_PATH.public, 'favicon.ico'),
-    width: 1200,
+    width: 1300,
     height: 700,
     webPreferences: {
       // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
