@@ -8,29 +8,38 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build && electron-builder"
+    "build": "vue-tsc --noEmit && vite build && electron-builder",
+    "postinstall": "install-app-deps"
   },
   "engines": {
     "node": ">=16.0.0"
   },
   "dependencies": {
-    "dayjs": "^1.11.5",
-    "pinia": "^2.0.22",
-    "webfontloader": "^1.0.0",
-    "vue-toastification": "^2.0.0-rc.5",
-    "roboto-fontface": "*",
     "@mdi/font": "5.9.55",
-    "vuetify": "^3.0.0-beta.10",
+    "dayjs": "^1.11.5",
+    "electron-store": "^8.1.0",
+    "electron-window-state": "^5.0.3",
+    "howler": "^2.2.3",
+    "lodash": "^4.17.21",
+    "mp3tag.js": "^3.3.0",
+    "pinia": "^2.0.22",
+    "roboto-fontface": "*",
+    "slugify": "^1.6.5",
     "vite-plugin-vuetify": "^1.0.0-alpha.16",
-    "vue-router": "^4.1.5"
+    "vue-router": "^4.0.13",
+    "vue-toastification": "^2.0.0-rc.5",
+    "vuetify": "^3.0.0-beta.10",
+    "walk": "^2.3.15",
+    "webfontloader": "^1.0.0"
   },
   "devDependencies": {
-    "eslint": "^7.32.0",
-    "eslint-plugin-vue": "^8.0.3",
     "@vitejs/plugin-vue": "^3.0.1",
     "@vue/cli-plugin-router": "~5.0.0",
     "electron": "^20.0.2",
     "electron-builder": "^23.3.3",
+    "electron-devtools-installer": "^3.2.0",
+    "eslint": "^7.32.0",
+    "eslint-plugin-vue": "^8.0.3",
     "vite": "^3.0.8",
     "vite-plugin-electron": "^0.9.2",
     "vue": "^3.2.37",
@@ -46,7 +55,9 @@
       "eslint:recommended"
     ],
     "rules": {
-      "vue/no-mutating-props": ["off"],
+      "vue/no-mutating-props": [
+        "off"
+      ],
       "key-spacing": [
         "error",
         {

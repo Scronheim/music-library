@@ -35,23 +35,19 @@ export default createVuetify({
       variant: 'outlined',
     },
     VTextField: {
-      hideDetails: true,
       density: 'compact',
       variant: 'outlined',
     },
     VFileInput: {
-      hideDetails: true,
       density: 'compact',
       variant: 'outlined',
     },
     VSelect: {
-      hideDetails: true,
       density: 'compact',
       variant: 'outlined',
       noDataText: 'Нет данных',
     },
     VAutocomplete: {
-      hideDetails: true,
       density: 'compact',
       variant: 'outlined',
       noDataText: 'Нет данных',

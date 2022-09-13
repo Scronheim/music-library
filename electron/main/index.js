@@ -1,6 +1,14 @@
-import { app, BrowserWindow, shell, ipcMain } from 'electron'
+import { app, BrowserWindow, shell, ipcMain, dialog, Menu } from 'electron'
 import { release } from 'os'
 import { join } from 'path'
+import Store from 'electron-store'
+import windowStateKeeper from 'electron-window-state'
+import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
+
+import { parseArtistFolder } from '../utils'
+
+const store = new Store()
+// store.clear()
 
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration()
@@ -13,36 +21,50 @@ if (!app.requestSingleInstanceLock()) {
   process.exit(0)
 }
 
+Menu.setApplicationMenu(null)
+
 // Remove electron security warnings
 // This warning only shows in development mode
 // Read more on https://www.electronjs.org/docs/latest/tutorial/security
-// process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
+process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
 export const ROOT_PATH = {
   // /dist
   dist: join(__dirname, '../..'),
   // /dist or /public
   public: join(__dirname, app.isPackaged ? '../..' : '../../../public'),
+  preload: join(__dirname, '../../../electron/preload/index.js'),
 }
 
 const url = process.env.VITE_DEV_SERVER_URL
 const indexHtml = join(ROOT_PATH.dist, 'index.html')
 let win
 async function createWindow() {
-  win = new BrowserWindow({
+  let mainWindowState = windowStateKeeper({
+    defaultWidth: 1300,
+    defaultHeight: 800,
+  })
+  const options = {
     title: 'Main window',
     icon: join(ROOT_PATH.public, 'favicon.ico'),
-    width: 1300,
-    height: 700,
+    x: mainWindowState.x,
+    y: mainWindowState.y,
+    width: mainWindowState.width,
+    height: mainWindowState.height,
     webPreferences: {
+      preload: ROOT_PATH.preload,
       // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
       // Consider using contextBridge.exposeInMainWorld
       // Read more on https://www.electronjs.org/docs/latest/tutorial/context-isolation
       webSecurity: false,
       nodeIntegration: true,
-      contextIsolation: false,
+      contextIsolation: true,
     },
-  })
+  }
+
+  win = new BrowserWindow(options)
+
+  mainWindowState.manage(win)
 
   if (app.isPackaged) {
     win.loadFile(indexHtml)
@@ -64,7 +86,36 @@ async function createWindow() {
   })
 }
 
-app.whenReady().then(createWindow)
+app.whenReady().then(async () => {
+  await installExtension(VUEJS3_DEVTOOLS)
+  ipcMain.handle('openFolderDialog', async () => {
+    const options = {
+      properties: ['openDirectory']
+    }
+    const pathsArray = await dialog.showOpenDialog(win, options)
+    await parseArtistFolder(pathsArray)
+    return store.get('artists', [])
+  })
+
+  ipcMain.handle('getCollection', async () => {
+    return store.get('artists', [])
+  })
+
+  ipcMain.handle('saveCollection', async (event, collection) => {
+    store.set('artists', JSON.parse(collection))
+  })
+
+  ipcMain.handle('clearCollection', async () => {
+    store.clear()
+    return store.get('artists', [])
+  })
+
+  ipcMain.handle('playTrack', async (event, track) => {
+    console.log(track)
+  })
+
+  await createWindow()
+})
 
 app.on('window-all-closed', () => {
   win = null
